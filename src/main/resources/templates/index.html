@@ -1,0 +1,32 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>CorpGameShare</title>
+        <link rel="stylesheet" href="css/app.css"/>
+        <script type="text/javascript" th:inline="javascript">
+        /*<![CDATA[*/
+            function bootstrapApp(app) {
+                console.log('boot strapping app...');
+                app.constant('appConfig', {
+                   apiUrl: [[${apiUrl}]]
+                });
+            }
+        /*]]>*/
+        </script>
+    </head>
+    <body>
+        <div th:replace="fragment/header :: header"/>
+
+        <div id="appView" ng-app="app" ng-controller="ApplicationController as ac" ng-init="ac.init()">
+            <input type="text" value="{{ ac.url }}" style="width: 200px;"/>
+        </div>
+
+        <div class="container">
+            <p th:text="'Hello, Angular JS (v1) -> ' + ${name} + '!!!'"></p>
+        </div>
+
+        <div th:replace="fragment/footer :: footer"/>
+        <div th:replace="fragment/footer :: scripts"/>
+
+    </body>
+</html>
