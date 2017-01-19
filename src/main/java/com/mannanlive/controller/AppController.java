@@ -19,7 +19,7 @@ public class AppController {
     public String index(Model model) {
         model.addAttribute("name", "CorpGameShare");
         model.addAttribute("apiUrl", apiUrl);
-        log.info("boot-strapping app...");
+        log.debug("bootstrapping app...");
         return "index";
     }
 }
