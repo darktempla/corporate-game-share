@@ -1,4 +1,4 @@
-package com.mannanlive.model;
+package com.mannanlive.model.game;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -12,7 +12,7 @@ public class GameAttributes {
     @ApiModelProperty(readOnly = true, required = true, example = "Destiny")
     private String name;
 
-    @ApiModelProperty(readOnly = true, required = true, example = "Playstation 4", position = 1)
+    @ApiModelProperty(readOnly = true, required = true, example = "PlayStation 4", position = 1)
     private String console;
 
     @ApiModelProperty(readOnly = true, required = true, example = "false", position = 2)
