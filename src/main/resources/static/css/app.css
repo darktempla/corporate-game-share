@@ -16,3 +16,14 @@
 #footerView {
     padding-top: 200px;
 }
+md-grid-list .green { background: #b9f6ca; }
+md-grid-list .red { background: #ff8a80; }
+
+.loginBox {
+  max-width:  90%;
+  width: 500px
+}
+
+.md-media-100 {
+  max-height: 100px;
+}

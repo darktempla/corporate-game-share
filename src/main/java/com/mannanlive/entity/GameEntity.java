@@ -9,6 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.persistence.JoinColumn;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -21,12 +22,14 @@ public class GameEntity {
     private String name;
 
     @ElementCollection
-    @CollectionTable
+    @CollectionTable(joinColumns=@JoinColumn(name = "game_id", referencedColumnName = "id"))
     private List<String> genres;
     private String developer;
     private String publisher;
     private boolean exclusive;
     private LocalDate releaseDate;
+    private String wikiLink;
+    private String imageLink;
 
     @ManyToOne
     private ConsoleEntity console;
@@ -108,5 +111,21 @@ public class GameEntity {
 
     public void setGenres(List<String> genres) {
         this.genres = genres;
+    }
+
+    public String getWikiLink() {
+        return wikiLink;
+    }
+
+    public void setWikiLink(String wikiLink) {
+        this.wikiLink = wikiLink;
+    }
+
+    public String getImageLink() {
+        return imageLink;
+    }
+
+    public void setImageLink(String imageLink) {
+        this.imageLink = imageLink;
     }
 }
