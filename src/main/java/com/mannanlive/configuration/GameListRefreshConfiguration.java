@@ -25,7 +25,7 @@ import static java.lang.String.format;
 public class GameListRefreshConfiguration {
     private static final String WIKI_PAGE = "https://en.wikipedia.org/wiki/List_of_%s_games";
     private static final String WIKI_TABLE_NAME = "softwarelist";
-    private static final int NA_DATE_COLUMN = 7;
+    private static final int NA_DATE_COLUMN = 6;
 
     @Autowired
     private GameRepository gameRepository;
@@ -35,7 +35,7 @@ public class GameListRefreshConfiguration {
 
     private WikiElementTranslator translator = new WikiElementTranslator();
 
-    @Scheduled(fixedRate = 1000 * 60 * 60 * 24)
+    @Scheduled(fixedRate = 1000 * 60 * 60 * 24, initialDelay = 1000 * 60)
     public void refreshGames() {
         consoleRepository.findAll().forEach(this::refreshGamesForPlatform);
     }
@@ -55,14 +55,17 @@ public class GameListRefreshConfiguration {
     private void upsertGame(GameEntity game) {
         GameEntity entity = gameRepository.findByNameAndConsole(game.getName(), game.getConsole());
         if (entity != null) {
+            //preserve some attributes
             game.setId(entity.getId());
             game.setImageLink(entity.getImageLink());
         }
-        gameRepository.save(game);
+        if (!"Title".equalsIgnoreCase(game.getName())) {
+            gameRepository.save(game);
+        }
     }
 
     private void processRow(ConsoleEntity console, Element row) {
-        Elements cells = row.select("td");
+        Elements cells = row.children();
         if (cells.size() >= NA_DATE_COLUMN) {
             GameEntity game = extractGameData(cells);
             game.setConsole(console);
@@ -79,12 +82,12 @@ public class GameListRefreshConfiguration {
         game.setGenres(translator.extractList(tds[1]));
         game.setDeveloper(tds[2].text());
         game.setPublisher(tds[3].text());
-        game.setExclusive(isExclusive(tds[4].text()));
+        game.setExclusive(isExclusive(tds[3].text()));
         game.setReleaseDate(translator.extractDate(tds[NA_DATE_COLUMN]));
         return game;
     }
 
     private boolean isExclusive(String text) {
-        return "Yes".equals(text) || "Console".equals(text) || "Sony".equals(text) || "Microsoft".equals(text);
+        return "Sony Computer Ent.".equals(text) || "Microsoft".equals(text);
     }
 }

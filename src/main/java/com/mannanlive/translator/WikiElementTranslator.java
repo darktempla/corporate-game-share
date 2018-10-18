@@ -15,11 +15,12 @@ import static java.lang.String.format;
 public class WikiElementTranslator {
     private DateTimeFormatter monthDayYear = DateTimeFormatter.ofPattern("MMMM d, yyyy", Locale.ENGLISH);
     private DateTimeFormatter shortMonthDayYear = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.ENGLISH);
+    private DateTimeFormatter yearMonthDay = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH);
     private static final String EMPTY_STRING = "";
     private static final String SEPARATOR = ",";
 
     public LocalDate extractDate(Element td) {
-        if (td.children().size() == 2) {
+        if (td != null && td.children().size() >= 1) {
             //<span class="sortkey" style="display:none;speak:none">000000002015-04-22-0000</span>
             //<span style="white-space:nowrap">April 22, 2015</span>
             String text = correctPartialDates(td);
@@ -76,7 +77,7 @@ public class WikiElementTranslator {
     }
 
     private String correctPartialDates(Element td) {
-        String text = td.child(1).text();
+        String text = td.child(0).text();
         if (text.length() == 4) {
             //2017
             return format("December 31, %s", text);
@@ -84,6 +85,12 @@ public class WikiElementTranslator {
         if (text.length() == 8) {
             //Jul 2017
             return format("%s 1, %s", text.substring(0, 3), text.substring(4, 8));
+        }
+        if (text.length() == 23) {
+            //000000002018-13-31-0000
+            String yyyyMMdd = text.substring(8, 18).replace("-13-", "-12-");
+            LocalDate date = LocalDate.parse(yyyyMMdd, yearMonthDay);
+            return date.format(monthDayYear);
         }
         return text;
     }

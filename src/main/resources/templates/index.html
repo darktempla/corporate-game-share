@@ -1,42 +1,31 @@
-<!doctype html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-    <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1"/>
-        <title th:text="${name}"></title>
-        <link rel="stylesheet" href="css/app.css"/>
-        <link rel="stylesheet" href="css/bootstrap.min.css"/>
-        <script type="text/javascript" th:inline="javascript">
-        /*<![CDATA[*/
-            function bootstrapApp(app) {
-                console.log('boot strapping app...');
-                app.constant('appConfig', {
-                   apiUrl: [[${apiUrl}]]
-                });
-            }
-        /*]]>*/
-        </script>
-        <!-- Angular Material style sheet -->
-        <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css"/>
-    </head>
-    <body>
-        <div th:replace="fragment/header :: header"/>
+<head lang="en">
+    <meta charset="UTF-8"/>
+    <title>Game-Share | Collect, level up, share!</title>
+    <link rel="stylesheet" href="/css/main.css"/>
 
-        <div class="container">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"/>
 
-            <div id="appView" ng-app="app" ng-controller="ApplicationController as ac" ng-init="ac.init()">
-                <md-nav-bar ng-show="ac.loggedIn" md-selected-nav-item="ac.currentNavItem">
-                    <md-nav-item md-nav-href="#/games" name="games" value="games">Games</md-nav-item>
-                    <md-nav-item md-nav-href="#/options" name="options" value="options">Options</md-nav-item>
-                    <md-nav-item md-nav-href="#/login" name="options" value="options">Logout</md-nav-item>
-                </md-nav-bar>
-                <div class="text-center">
-                    <ng-view></ng-view>
-                </div>
-            </div>
-        </div>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+          integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous"/>
 
-        <div th:replace="fragment/footer :: footer"/>
-        <div th:replace="fragment/footer :: scripts"/>
+</head>
+<body>
 
-    </body>
+<div id="react"></div>
+
+
+<footer class="bs-docs-footer" role="contentinfo">
+    <div class="container">
+        <span th:utext="${#dates.format(date)}">Date</span>
+        · <span th:utext="${version}">Version</span>
+        · <a th:href="${git}">GitHub</a>
+        · <a href="https://trello.com/b/msOimFZe/game-share-kanban">Issues</a>
+    </div>
+</footer>
+
+<script type="text/javascript" th:src="${reactBundle + '/built/bundle.js'}"></script>
+</body>
 </html>

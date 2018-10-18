@@ -4,6 +4,7 @@ import com.mannanlive.entity.GameState;
 import com.mannanlive.entity.LibraryEntity;
 import com.mannanlive.model.library.Library;
 import com.mannanlive.model.library.LibraryGameData;
+import com.mannanlive.model.usermodel.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.Authentication;
@@ -12,6 +13,7 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -24,9 +26,7 @@ public class LibraryService extends AbstractGameService {
     private GameImageService gameImageService;
 
     public Library getUsersLibrary(Authentication user, Long userId) {
-        validateUserHasAccess(user, userId);
-
-        List<LibraryEntity> entities = libraryRepository.findByUserIdOrderByCreated(userId);
+        List<LibraryEntity> entities = libraryRepository.findByOwnerIdOrderByCreated(userId);
         List<LibraryGameData> collect = entities
                 .stream()
                 .map(entity -> translator.translate(entity))
@@ -35,16 +35,14 @@ public class LibraryService extends AbstractGameService {
         return new Library(collect);
     }
 
-    public void addGameToLibrary(Authentication user, Long userId, LibraryGameData data) {
-        validateLibraryIsUsers(user, userId);
-
-        LibraryEntity libraryEntity = translator.translateNew(userId, data);
+    public void addGameToLibrary(String userId, LibraryGameData data) {
+        LibraryEntity libraryEntity = translator.translateNew(Long.parseLong(userId), data);
         try {
             libraryRepository.save(libraryEntity);
             gameImageService.refreshGameImage(libraryEntity.getGame().getId());
         } catch (DataIntegrityViolationException exception) {
             throw new HttpClientErrorException(BAD_REQUEST,
-                    "You have already created this game to your library.");
+                    "You have already added this game to your library.");
         }
     }
 
@@ -60,11 +58,12 @@ public class LibraryService extends AbstractGameService {
     }
 
     private LibraryEntity getAndValidateGameStateChange(Authentication user, Long libraryId, LibraryGameData data) {
-        LibraryEntity entity = libraryRepository.findOne(libraryId);
-        if (entity == null) {
+        Optional<LibraryEntity> optional = libraryRepository.findById(libraryId);
+        if (!optional.isPresent()) {
             throw new HttpClientErrorException(NOT_FOUND, format("No library game exists with id '%d'.", libraryId));
         }
-        validateLibraryIsUsers(user, entity.getUser().getId());
+        LibraryEntity entity = optional.get();
+        validateLibraryIsUsers(user, entity.getOwner().getId());
 
         if (entity.getState() == GameState.ON_LOAN) {
             throw new HttpClientErrorException(BAD_REQUEST,

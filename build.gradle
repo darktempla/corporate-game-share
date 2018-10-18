@@ -1,18 +1,23 @@
 buildscript {
 	ext {
-		springBootVersion = '1.4.3.RELEASE'
+		springBootVersion = '2.0.5.RELEASE'
 	}
 	repositories {
 		mavenCentral()
 	}
 	dependencies {
-		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+		classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
 	}
+}
+
+plugins {
+	id 'com.moowork.node' version '1.2.0'
 }
 
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
 
 jar {
 	baseName = 'corporate-game-share'
@@ -30,7 +35,7 @@ dependencies {
 	compile('org.springframework.boot:spring-boot-starter-data-jpa')
 	compile('org.springframework.boot:spring-boot-starter-web')
 	compile('org.springframework.boot:spring-boot-starter-security')
-	compile('org.springframework.security.oauth:spring-security-oauth2')
+	compile('org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.0.0.RELEASE')
     compile('com.fasterxml.jackson.datatype:jackson-datatype-jdk8')
     compile('com.fasterxml.jackson.datatype:jackson-datatype-jsr310')
     compile('org.hibernate:hibernate-java8')
@@ -38,13 +43,15 @@ dependencies {
     compile('io.springfox:springfox-swagger2:2.6.1')
     compile('io.springfox:springfox-swagger-ui:2.6.1')
     runtime('org.springframework.boot:spring-boot-devtools')
+    runtime('org.postgresql:postgresql:9.4.1212')
     runtime('com.h2database:h2')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }
 
-task stage(dependsOn: ['clean', 'bootRepackage'])
+task stage(dependsOn: ['clean', 'npmInstall', 'npmSetup', 'npm_run_build', 'bootJar'])
+processResources.mustRunAfter npm_run_build
 
-bootRepackage {
+bootJar {
     it.mustRunAfter clean
 }
 
@@ -52,3 +59,19 @@ bootRun {
     it.dependsOn clean
     it.mustRunAfter clean
 }
+
+node {
+	version = '6.10.2'
+	npmVersion = '3.10.6'
+	download = true
+	workDir = file("${project.buildDir}/node")
+	nodeModulesDir = file("${project.projectDir}")
+}
+
+task webpack(type: NodeTask) {
+	script = file('node_modules/webpack/bin/webpack')
+}
+
+//task npmInstallPackage(type: NpmTask) {
+//	args = [['i'], [], ['--save']].flatten()
+//}
